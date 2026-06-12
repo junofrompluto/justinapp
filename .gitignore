@@ -1,0 +1,5 @@
+.deploy-token
+__pycache__/
+*.pyc
+.DS_Store
+Screenshot*.png

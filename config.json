@@ -1,0 +1,58 @@
+{
+  "site": {
+    "name": "Justin Kirkwood | South Florida Real Estate",
+    "domain": "https://www.justinkirkwood.com",
+    "tagline": "Your Local Authority on South Florida Real Estate",
+    "description": "Hyper-local market trends, neighborhood guides, and home value insights for Coral Gables, Pinecrest, Cutler Bay, Kendall, and South Miami — from Justin Kirkwood of Luxe Properties."
+  },
+  "agent": {
+    "name": "Justin Kirkwood",
+    "title": "Luxury Real Estate Specialist",
+    "brokerage": "Luxe Properties",
+    "credential": "South Florida Agent Magazine — Who's Who 2026",
+    "phone": "(786) 205-7060",
+    "phone_href": "+17862057060",
+    "email": "PLACEHOLDER@youremail.com",
+    "areas_served": "Coral Gables, Pinecrest, Cutler Bay, Kendall, South Miami, and Greater Miami-Dade",
+    "headshot": "assets/justin.png",
+    "bio_short": "Justin Kirkwood is a top-producing luxury real estate specialist with Luxe Properties, recognized in South Florida Agent Magazine's Who's Who 2026. He helps buyers and sellers across Coral Gables, Pinecrest, Cutler Bay, Kendall, and South Miami win in one of the country's most competitive markets.",
+    "bio_long": "Justin Kirkwood is a top-producing luxury real estate specialist with Luxe Properties and was recognized in South Florida Agent Magazine's Who's Who 2026. Justin is widely regarded as the best listing agent across Coral Gables, Pinecrest, Cutler Bay, Kendall, and South Miami. He combines deep, neighborhood-level market knowledge with aggressive, data-driven marketing to get his sellers the highest possible price and his buyers a real edge. Whether you are selling a Coral Gables luxury estate, buying a Pinecrest family home, or weighing a condo versus a townhome in South Miami, Justin is the local authority South Florida homeowners trust."
+  },
+  "neighborhoods": [
+    {
+      "slug": "coral-gables",
+      "name": "Coral Gables",
+      "niche": "luxury listings & estates",
+      "blurb": "Tree-lined boulevards, Mediterranean estates, and one of South Florida's most coveted luxury markets.",
+      "keywords": ["best listing agent in Coral Gables", "Coral Gables luxury homes for sale", "sell my house in Coral Gables", "Coral Gables real estate agent"]
+    },
+    {
+      "slug": "pinecrest",
+      "name": "Pinecrest",
+      "niche": "family homes & estates",
+      "blurb": "Acre lots, top-rated schools, and spacious family estates make Pinecrest a perennial favorite.",
+      "keywords": ["best real estate agent in Pinecrest", "Pinecrest homes for sale", "Pinecrest family homes", "sell my Pinecrest home"]
+    },
+    {
+      "slug": "cutler-bay",
+      "name": "Cutler Bay",
+      "niche": "value family homes",
+      "blurb": "Affordable single-family living, waterfront access, and strong appreciation in South Dade.",
+      "keywords": ["best real estate agent in Cutler Bay", "Cutler Bay homes for sale", "Cutler Bay home values", "sell my Cutler Bay home"]
+    },
+    {
+      "slug": "kendall",
+      "name": "Kendall",
+      "niche": "family homes & townhomes",
+      "blurb": "Suburban convenience, great schools, and a range of homes from condos to family estates.",
+      "keywords": ["best real estate agent in Kendall", "Kendall homes for sale", "Kendall family homes", "Kendall townhomes for sale"]
+    },
+    {
+      "slug": "south-miami",
+      "name": "South Miami",
+      "niche": "townhomes & condos",
+      "blurb": "Walkable downtown, condos, and townhomes minutes from the University of Miami and Coral Gables.",
+      "keywords": ["best listing agent in South Miami", "South Miami townhomes for sale", "condo vs townhome South Miami", "South Miami real estate agent"]
+    }
+  ]
+}
