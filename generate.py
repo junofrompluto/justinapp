@@ -103,8 +103,8 @@ def market_stats_html(slug):
         d = "up" if v > 0 else ("down" if v < 0 else "flat")
         cards.append((label, _fmt_pct(v), d))
     items = "".join(
-        f'<div class="stat"><span class="stat-num {d}">{val}</span>'
-        f'<span class="stat-label">{label}</span></div>'
+        f'<div class="ms-stat"><span class="ms-num {d}">{val}</span>'
+        f'<span class="ms-label">{label}</span></div>'
         for (label, val, d) in cards
     )
     return (
@@ -112,7 +112,7 @@ def market_stats_html(slug):
         f'<div class="market-stats-head">'
         f'<span class="ms-kicker">By the numbers</span>'
         f'<h3>{name} home values — {as_of}</h3></div>'
-        f'<div class="stat-grid">{items}</div>'
+        f'<div class="ms-grid">{items}</div>'
         f'<p class="market-src">Source: {MARKET.get("source", "Zillow Research")} '
         f'(ZIP {m["zip"]}, as of {as_of}).</p>'
         f"</div>"
@@ -671,6 +671,8 @@ def render_neighborhood_page(nb, posts):
     kw_list = "".join(f"<li>{k}</li>" for k in nb["keywords"])
     html += f"""
 <section class="nb-hero">
+  <div class="hero-bg" style="background-image:url('../assets/img/{nb['slug']}.jpg')"></div>
+  <div class="hero-scrim"></div>
   <div class="wrap">
     <p class="eyebrow">South Florida · Neighborhood Guide</p>
     <h1>{nb['name']} Real Estate</h1>
@@ -714,7 +716,8 @@ def render_index(posts):
         for n in NEIGHBORHOODS
     )
     nb_cards = "".join(
-        f'''<a class="nb-card" href="neighborhoods/{n['slug']}.html">
+        f'''<a class="nb-card has-img" href="neighborhoods/{n['slug']}.html">
+              <span class="nb-card-img" style="background-image:url('assets/img/{n['slug']}.jpg')"></span>
               <h3>{n['name']}</h3><p>{n['blurb']}</p>
               <span class="nb-link">View {n['name']} trends →</span></a>'''
         for n in NEIGHBORHOODS
@@ -723,6 +726,8 @@ def render_index(posts):
     html += header(depth=0)
     html += f"""
 <section class="hero">
+  <div class="hero-bg" style="background-image:url('assets/img/hero.jpg')"></div>
+  <div class="hero-scrim"></div>
   <div class="wrap">
     <p class="eyebrow">{AGENT['credential']}</p>
     <h1>{SITE['tagline']}</h1>
@@ -751,6 +756,16 @@ def render_index(posts):
   <h2 class="section-title">Explore South Florida Neighborhoods</h2>
   <p class="section-sub">Hyper-local expertise, one neighborhood at a time.</p>
   <div class="nb-grid">{nb_cards}</div>
+</section>
+
+<section class="wrap section video-section">
+  <h2 class="section-title">See South Florida From Above</h2>
+  <p class="section-sub">A bird's-eye view of the communities Justin knows street by street.</p>
+  <div class="video-embed" data-yt="G69j2G5JD2Y">
+    <img class="video-poster" src="assets/img/video-poster.jpg" alt="Aerial view of the South Florida skyline and coastline" loading="lazy">
+    <button class="video-play" aria-label="Play South Florida aerial video"></button>
+  </div>
+  <p class="video-credit muted">Aerial tour of Miami &amp; South Florida.</p>
 </section>
 
 <section class="wrap section" id="blog">

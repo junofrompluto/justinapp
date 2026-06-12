@@ -344,12 +344,29 @@ window.JK = (function () {
     );
   }
 
+  function initVideo() {
+    document.querySelectorAll(".video-embed[data-yt]").forEach((el) => {
+      el.addEventListener("click", () => {
+        const id = el.getAttribute("data-yt");
+        const f = document.createElement("iframe");
+        f.src = "https://www.youtube-nocookie.com/embed/" + id +
+                "?autoplay=1&rel=0&modestbranding=1";
+        f.title = "South Florida aerial video";
+        f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+        f.allowFullscreen = true;
+        el.innerHTML = "";
+        el.appendChild(f);
+      }, { once: true });
+    });
+  }
+
   function initDynamicUI() {
     initNav();
     initReveals();
     initScrollFX();
     initCounters();
     initFilter();
+    initVideo();
   }
 
   document.addEventListener("DOMContentLoaded", function () { initChat(); initDynamicUI(); });
