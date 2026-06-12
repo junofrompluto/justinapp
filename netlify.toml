@@ -1,2 +1,6 @@
+# This is a PRE-BUILT static site: generate.py (Python) produces the finished
+# HTML and the completed site is committed in deploy/. Netlify must NOT run a
+# build tool (it wrongly auto-detected "hugo") — it just publishes deploy/ as-is.
 [build]
+  command = "echo 'No build step — static site is pre-built; publishing deploy/ as-is.'"
   publish = "deploy"
