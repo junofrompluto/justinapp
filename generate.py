@@ -47,6 +47,77 @@ AGENT = CFG["agent"]
 NEIGHBORHOODS = CFG["neighborhoods"]
 NB_BY_SLUG = {n["slug"]: n for n in NEIGHBORHOODS}
 
+# Real market data (Zillow ZHVI) cached by fetch_market.py. Optional — if the
+# file is missing the site still builds, just without the live stat blocks.
+MARKET = load_json(os.path.join(ROOT, "data", "market.json"), {})
+
+
+def _fmt_pct(p):
+    if p is None:
+        return None
+    p = 0.0 if p == 0 else p          # normalize -0.0
+    return f"{'+' if p > 0 else ''}{p:.1f}%"
+
+
+def _month_year(iso):
+    try:
+        return datetime.strptime(iso, "%Y-%m-%d").strftime("%B %Y")
+    except (ValueError, TypeError):
+        return iso or ""
+
+
+def market_data(slug):
+    """Return the cached market dict for a neighborhood slug, or None."""
+    m = (MARKET.get("neighborhoods") or {}).get(slug)
+    return m if m and m.get("zhvi") else None
+
+
+def market_sentence(slug):
+    """One quotable, GEO-friendly sentence with the real number (or '')."""
+    m = market_data(slug)
+    if not m:
+        return ""
+    name = NB_BY_SLUG[slug]["name"]
+    as_of = _month_year(MARKET.get("as_of"))
+    s = (f"As of {as_of}, the typical {name} home is valued at "
+         f"<strong>${m['zhvi']:,}</strong>")
+    yoy = m.get("yoy_pct")
+    if yoy is not None and yoy != 0:
+        s += (f", {'up' if yoy > 0 else 'down'} {abs(yoy):.1f}% year over year "
+              f"(Zillow Home Value Index)")
+    return f"<p>{s}.</p>"
+
+
+def market_stats_html(slug):
+    """Visual 'By the numbers' stat block for a neighborhood, or '' if no data."""
+    m = market_data(slug)
+    if not m:
+        return ""
+    name = NB_BY_SLUG[slug]["name"]
+    as_of = _month_year(MARKET.get("as_of"))
+    cards = [("Typical home value", f"${m['zhvi']:,}", "")]
+    for label, key in (("Year over year", "yoy_pct"), ("Month over month", "mom_pct")):
+        v = m.get(key)
+        if v is None:
+            continue
+        d = "up" if v > 0 else ("down" if v < 0 else "flat")
+        cards.append((label, _fmt_pct(v), d))
+    items = "".join(
+        f'<div class="stat"><span class="stat-num {d}">{val}</span>'
+        f'<span class="stat-label">{label}</span></div>'
+        for (label, val, d) in cards
+    )
+    return (
+        f'<div class="market-stats" aria-label="{name} market data">'
+        f'<div class="market-stats-head">'
+        f'<span class="ms-kicker">By the numbers</span>'
+        f'<h3>{name} home values — {as_of}</h3></div>'
+        f'<div class="stat-grid">{items}</div>'
+        f'<p class="market-src">Source: {MARKET.get("source", "Zillow Research")} '
+        f'(ZIP {m["zip"]}, as of {as_of}).</p>'
+        f"</div>"
+    )
+
 
 # ---------------------------------------------------------------------------
 # Content angles — each returns (title, summary, body_html, faq[list of (q,a)])
@@ -77,7 +148,10 @@ def angle_market_update(nb, d):
 current snapshot for {d.strftime('%B %Y')}. {name} continues to be one of South
 Florida's most closely-watched neighborhoods, known for its {nb['niche']}.</p>
 
+{market_stats_html(nb['slug'])}
+
 <h2>What's happening in {name} right now</h2>
+{market_sentence(nb['slug'])}
 <p>Inventory in {name} remains tight relative to historical norms, which keeps
 well-priced, well-marketed homes moving quickly. Move-in-ready properties that are
 priced correctly from day one are still drawing strong buyer interest, while overpriced
@@ -522,6 +596,18 @@ def generate_post(posts, for_date=None):
 
 def render_post_page(post):
     nb = NB_BY_SLUG[post["neighborhood"]]
+    # Re-render body + FAQ from the stored angle so live data (market stats)
+    # and template improvements flow into existing posts on every build.
+    # Title/summary/slug stay frozen (they define the URL). Falls back to the
+    # stored copy if the angle can't be re-rendered.
+    body, faq = post["body"], post["faq"]
+    angle_idx = post.get("angle")
+    if angle_idx is not None and 0 <= angle_idx < len(ANGLES):
+        try:
+            pdate = datetime.strptime(post["date"], "%Y-%m-%d").date()
+            _, _, body, faq = ANGLES[angle_idx](nb, pdate)
+        except (ValueError, KeyError, IndexError):
+            pass
     canonical = f'{SITE["domain"]}/blog/{post["slug"]}.html'
     article_schema = {
         "@context": "https://schema.org",
@@ -534,7 +620,7 @@ def render_post_page(post):
         "about": f'{nb["name"]} real estate',
     }
     extra = (f'<script type="application/ld+json">{json.dumps(article_schema)}</script>'
-             + faq_schema(post["faq"]))
+             + faq_schema(faq))
     html = head(post["title"], post["summary"], canonical, depth=1, extra_schema=extra)
     html += header(depth=1)
     html += f"""
@@ -543,8 +629,8 @@ def render_post_page(post):
   <p class="eyebrow">{nb['name']} · Market Trends</p>
   <h1>{post['title']}</h1>
   <p class="post-meta">By {AGENT['name']}, {AGENT['brokerage']} · {post['date_display']}</p>
-  <div class="post-body">{post['body']}</div>
-  {faq_html(post['faq'])}
+  <div class="post-body">{body}</div>
+  {faq_html(faq)}
   <div class="author-card">
     <img src="../{AGENT['headshot']}" alt="{AGENT['name']}, {AGENT['brokerage']}" onerror="this.style.display='none'">
     <div>
@@ -600,6 +686,9 @@ def render_neighborhood_page(nb, posts):
   data-driven marketing. Whether you are buying or selling {nb['niche']}, Justin is the
   specialist {nb['name']} homeowners trust to get the best result.</p>
   <ul class="kw-list">{kw_list}</ul>
+</section>
+<section class="wrap section">
+  {market_stats_html(nb['slug']) or f'<p class="muted">Live {nb["name"]} market data publishing soon.</p>'}
 </section>
 <section class="wrap section" id="trends">
   <h2>{nb['name']} Market Trends &amp; Guides</h2>

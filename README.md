@@ -12,6 +12,25 @@ python3 generate.py --new-post   # publish today's neighborhood-trend post + reb
 
 A scheduled task (`justinapp-daily-post`, 7am daily) runs `--new-post` automatically, so a fresh hyper-local post publishes every morning. Each post rotates through neighborhoods (Coral Gables, Pinecrest, Cutler Bay, Kendall, South Miami) and content angles (market update, home value, best time to sell, condo vs. townhome, school guide, seller playbook).
 
+## Live market data (real numbers)
+`fetch_market.py` pulls the **Zillow Home Value Index (ZHVI)** — Zillow's official,
+free, redistributable research dataset (zillow.com/research/data) — for each
+neighborhood's ZIP and caches it to `data/market.json`.
+
+```bash
+python3 fetch_market.py          # refresh data/market.json (run monthly-ish)
+python3 generate.py --build      # render the numbers into the site
+```
+
+`generate.py` reads `market.json` and renders a "By the numbers" stat block
+(typical home value + YoY + MoM) into every market-update post and neighborhood
+page, with a quotable sentence and Zillow attribution. ZHVI updates monthly, so
+`fetch_market.py` is decoupled from the daily build; if it's never run (or the
+download fails) the site still builds, just without the stat blocks.
+
+> We do **not** scrape Zillow/Redfin listing pages (against their ToS). For live
+> *individual listings*, the right route is an IDX/MLS feed via Justin's MLS.
+
 ## What makes it rank for "best agent in [neighborhood]"
 - **Entity signals:** `RealEstateAgent` schema.org markup on every page tying Justin to the brokerage, award, phone, and areas served.
 - **FAQ schema:** every page answers "Who is the best agent in [neighborhood]?" with Justin's name — the format AI assistants quote directly.
