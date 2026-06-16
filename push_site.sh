@@ -20,8 +20,6 @@ rsync -a --delete \
   --exclude '.git' \
   --exclude '.deploy-token' \
   --exclude '__pycache__' \
-  --exclude 'assets_test' \
-  --exclude '__newtest.html' \
   --exclude 'Screenshot*' \
   --exclude '.DS_Store' \
   "$SITE_DIR/" .
