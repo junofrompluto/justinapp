@@ -883,10 +883,14 @@ DEPLOY_DIRS = ["assets", "blog", "neighborhoods"]
 
 
 def sync_deploy():
-    """Mirror only the public site files into deploy/ — drag this folder to Netlify."""
-    if os.path.exists(DEPLOY_DIR):
-        shutil.rmtree(DEPLOY_DIR)
-    os.makedirs(DEPLOY_DIR)
+    """Mirror only the public site files into deploy/ — drag this folder to Netlify.
+
+    Note: on some mounted filesystems empty directories (e.g. assets/video)
+    cannot be removed, which breaks a plain shutil.rmtree. We therefore mirror
+    in-place: overwrite files and merge dirs (dirs_exist_ok), and best-effort
+    clear stale entries while ignoring un-removable empty dirs.
+    """
+    os.makedirs(DEPLOY_DIR, exist_ok=True)
     for f in DEPLOY_FILES:
         src = os.path.join(ROOT, f)
         if os.path.exists(src):
@@ -894,7 +898,7 @@ def sync_deploy():
     for d in DEPLOY_DIRS:
         src = os.path.join(ROOT, d)
         if os.path.isdir(src):
-            shutil.copytree(src, os.path.join(DEPLOY_DIR, d))
+            shutil.copytree(src, os.path.join(DEPLOY_DIR, d), dirs_exist_ok=True)
     print(f"Synced deploy folder: {DEPLOY_DIR}")
 
 
