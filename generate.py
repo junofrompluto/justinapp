@@ -569,8 +569,12 @@ def slugify(text):
 def generate_post(posts, for_date=None):
     """Pick a neighborhood + angle combo not recently used and build a post."""
     d = for_date or date.today()
-    used = {(p["neighborhood"], p["angle"]) for p in posts}
     combos = [(n["slug"], i) for n in NEIGHBORHOODS for i in range(len(ANGLES))]
+    # Only avoid combos used recently so the rotation cycles forever
+    # (previously "used" covered all posts ever, which dead-ended once
+    # every combo had been published once).
+    recent = posts[-(len(combos) - 1):] if len(combos) > 1 else []
+    used = {(p["neighborhood"], p["angle"]) for p in recent}
     random.seed(d.toordinal())
     random.shuffle(combos)
     choice = next((c for c in combos if c not in used), combos[0])
@@ -578,6 +582,11 @@ def generate_post(posts, for_date=None):
     nb = NB_BY_SLUG[nb_slug]
     title, summary, body, faq = ANGLES[angle_idx](nb, d)
     slug = slugify(title)
+    # Guarantee a unique slug even if the same title recurs (e.g. same
+    # angle reused within one month).
+    existing_slugs = {p["slug"] for p in posts}
+    if slug in existing_slugs:
+        slug = f"{slug}-{d.isoformat()}"
     post = {
         "slug": slug,
         "title": title,
